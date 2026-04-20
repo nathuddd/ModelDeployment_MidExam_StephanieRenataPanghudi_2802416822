@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 # PAGE CONFIG
 st.set_page_config(
-    page_title="PlacementPredictor",
+    page_title="Placement Predictor",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -50,21 +50,13 @@ st.markdown("""
 
     /* Hero banner */
     .hero-banner {
-        background: linear-gradient(135deg, #1a1030 0%, #0f1a2e 60%, #1a1030 100%);
+        background: #1a1030;
         border: 1px solid #2e2a45;
         border-radius: 16px;
         padding: 36px 40px 28px;
         margin-bottom: 28px;
         position: relative;
         overflow: hidden;
-    }
-    .hero-banner::before {
-        content: '';
-        position: absolute;
-        top: -60px; right: -60px;
-        width: 220px; height: 220px;
-        background: radial-gradient(circle, rgba(160,100,255,0.18) 0%, transparent 70%);
-        border-radius: 50%;
     }
     .hero-title {
         font-family: 'DM Serif Display', serif;
@@ -182,7 +174,7 @@ st.markdown("""
 
     /* Button */
     .stButton > button {
-        background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        background: #7c3aed;
         color: white;
         border: none;
         border-radius: 10px;
@@ -295,7 +287,7 @@ with st.sidebar:
 # MAIN AREA
 st.markdown("""
 <div class="hero-banner">
-  <div class="hero-title">PlacementPredictor</div>
+  <div class="hero-title">Placement Predictor</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -310,7 +302,7 @@ if not clf_loaded or not reg_loaded:
     st.markdown(f'<div class="warn-box"> Model file(s) not found: {", ".join(missing)}<br>Run <code>python ScikitLearn_Pipeline.py</code> first to generate models.</div>', unsafe_allow_html=True)
 
 # Tabs
-tab1, tab2, tab3 = st.tabs(["Prediction", "Feature Analysis", "ℹModel Info"])
+tab1, tab2 = st.tabs(["Prediction", "Feature Analysis"])
 
 with tab1:
     if predict_btn:
@@ -419,8 +411,6 @@ with tab1:
     else:
         st.markdown("""
         <div style="text-align:center; padding:60px 20px; color:#4a4a60;">
-            <div style="font-size:3rem; margin-bottom:16px;">🎯</div>
-            <div style="font-family:'DM Serif Display',serif; font-size:1.5rem; color:#2e2a45; margin-bottom:8px;">Ready to predict</div>
             <div style="font-size:0.9rem;">Fill in the student profile in the sidebar and click <strong style="color:#7c5cbf;">Generate Prediction</strong></div>
         </div>
         """, unsafe_allow_html=True)
@@ -469,44 +459,3 @@ with tab2:
     c1.metric("Academic Composite", f"{academic:.1f}%", delta=f"{academic - 70:.1f} vs avg")
     c2.metric("Skill Composite",    f"{skill:.1f}/100",  delta=f"{skill - 65:.1f} vs avg")
     c3.metric("Experience Score",   f"{exp_sc:.1f} pts", delta=f"{exp_sc - 15:.1f} vs avg")
-
-with tab3:
-    st.markdown("### About the Models")
-
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.markdown("""
-        **Classification Model** — Predicts placement status  
-        - Target: `placement_status` (0 / 1)
-        - Algorithms compared: Logistic Regression, Random Forest, Gradient Boosting
-        - Best model selected by **ROC-AUC**
-        - Trained on 80% of data, evaluated on 20%
-        - Preprocessing: StandardScaler + OrdinalEncoder inside Pipeline
-        """)
-    with col_b:
-        st.markdown("""
-        **Regression Model** — Predicts salary package  
-        - Target: `salary_package_lpa`
-        - Trained only on **placed students** (placement = 1)
-        - Algorithms compared: Linear Regression, Random Forest, Gradient Boosting
-        - Best model selected by **R² score**
-        - Preprocessing: same Pipeline object, no data leakage
-        """)
-
-    st.markdown("---")
-    st.markdown("### Engineered Features Used")
-    st.markdown("""
-    | Feature | Formula | Purpose |
-    |---|---|---|
-    | `academic_composite` | mean(ssc, hsc, degree %) | Aggregates all academic stages |
-    | `skill_composite` | mean(technical, soft skill) | Combines hard + soft skills |
-    | `experience_score` | internships×3 + projects×2 + months×0.5 | Weighted practical experience |
-    """)
-
-    st.markdown("---")
-    st.markdown("### Model Files")
-    for label, path in [
-        ("Classification model", "models/best_classification_model.pkl"),
-        ("Regression model",     "models/best_regression_model.pkl"),
-    ]:
-        exists = os.path.exists(path)
